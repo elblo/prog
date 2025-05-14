@@ -1,96 +1,43 @@
-# Desarrollo Web en Entorno Servidor
+# Fundamentos de programación con Java
 
 ??? info "Apuntes en construcción"
     Estos apuntes se están actualizando por [*Eladio Blanco*](https://x.com/eladioblanco) durante el curso 24/25.
 
-Aquí puedes encontrar los apuntes del módulo de ***Desarrollo web en entorno servidor***, que se imparte en el segundo curso del ciclo formativo de grado superior de *Desarrollo de Aplicaciones Web*.
+Aquí puedes encontrar los apuntes del módulo de ***Programación***, que se imparte en el primer curso del ciclo formativo de grado superior de *Desarrollo de Aplicaciones Web*.
 
-La duración del módulo es de 168 horas lectivas, a razón de **8 horas semanales**, y se desarrolla a lo largo de los **dos primeros trimestres** del curso. Se ha [planificado](planning.md) basándose en 4 sesiones de 2 horas lectivas por semana.
+La duración del módulo es de 256 horas lectivas, a razón de **8 horas semanales**, y se desarrolla a lo largo de los **tres trimestres** del curso. Se ha planificado basándose en 4 sesiones de 2 horas lectivas por semana.
 
 ## ¿Qué voy a aprender?
 
-* A desarrollar aplicaciones web dinámicas, que obtienen la información a partir de una base de datos.
-* Analizar la estructura de una aplicación cliente/servidor, separando el código de presentación de la lógica de negocio.
-* Obtener información a partir de los datos almacenados, así como modificarlos.
-* Utilizar frameworks de desarrollo web para agilizar el proceso de desarrollo.
-* Crear servicios web para la comunicación entre aplicaciones.
+* A ...
 
 ## Resultados de aprendizaje
 
-1. Selecciona las arquitecturas y tecnologías de programación web en entorno servidor, analizando sus capacidades y características propias.
-2. Escribe sentencias ejecutables por un servidor web reconociendo y aplicando procedimientos de integración del código en lenguajes de marcas.
-3. Escribe bloques de sentencias embebidos en lenguajes de marcas, seleccionando y utilizando las estructuras de programación.
-4. Desarrolla aplicaciones web embebidas en lenguajes de marcas analizando e incorporando funcionalidades según especificaciones.
-5. Desarrolla aplicaciones web identificando y aplicando mecanismos para separar el código de presentación de la lógica de negocio.
-6. Desarrolla aplicaciones web de acceso a almacenes de datos, aplicando medidas para mantener la seguridad y la integridad de la información.
-7. Desarrolla servicios web reutilizables y accesibles mediante protocolos web, verificando su funcionamiento.
-8. Genera páginas web dinámicas analizando y utilizando tecnologías y frameworks del servidor web que añadan código al lenguaje de marcas.
-9. Desarrolla aplicaciones web híbridas seleccionando y utilizando tecnologías, frameworks servidor y repositorios heterogéneos de información.
+1. ...
 
 ## Unidades didácticas y temporalización
 
 A continuación se muestran las unidades didácticas y una estimación temporal de cada una de ellas.
-La primera evaluación contendría las unidades comprendidas entre la 1 y 5, y parte de la unidad 6. Así pues, desde la mitad de la  unidad 6 a la unidad 9 se verán en la segunda evaluación.
+La primera evaluación contendría las unidades comprendidas entre la 1 y 4, y parte de la unidad 6. Así pues, desde la mitad de la  unidad 6 a la unidad 9 se verán en la segunda evaluación.
 
 ### Primera evaluación
 
-Duración estimada: 76 horas
+Duración estimada: x horas
 
 1. [Arquitecturas Web](01arquitecturas.md) (4h)
     * Cliente/Servidor.
     * MVC.
     * Puesta en marcha con XAMPP y Docker.
-2. [El lenguaje PHP](02php.md) (26h)
-    * Condiciones y bucles.
-    * Arrays.
-3. [Orientación a objetos con PHP](03phpoo.md) (18h)
-    * Clases y objetos
-    * Namespaces
-    * Excepciones
-4. [Programación Web](04web.md) (12h)
-    * Formularios.
-    * Cookies.
-    * Sesiones.
-5. [Herramientas Web](05herramientas.md) (16h)
-    * Gestión de librerías con *Composer*.
-    * Envío de correos con *Resend*.
-    * Gestión de logs con *Monolog*.
-    * Documentación con *phpDocumentor*.
-    * Web scraping con *Goutte*.
-    * Pruebas con *PhpUnit*.
-6. [Acceso a datos](06accesoDatos.md) (28h)
-    * *SQL*
-    * *PDO*
-    * Ficheros CSV y PDF.
 
 ### Segunda evaluación
 
-Duración estimada: 86 horas
+Duración estimada: x horas
 
 7. [Frameworks PHP - Laravel](07frameworks.md) (28h)
     * Instalación y entornos de desarrollo
     * Rutas
     * Vistas y plantillas Blade
     * Controladores
-8. [Gestion de datos en Laravel](08laravelDatos.md) (24h)
-    * Migraciones e integración con el ORM *Eloquent*.
-    * Query Builder
-    * Modelos
-    * Formulario sy validación
-9. [Uso avanzado de Laravel](09laravelAvanzado.md) (22h)
-    * Almacenamiento de ficheros (local y AWS S3)
-    * Request y responses
-    * Relaciones entre modelos
-    * Seeders y factorías
-    * Mutadores y accesores
-10. [Autenticación y autorización](10laravelAutenticacion.md) (12h)
-    * Autenticación
-    * Autorización
-    * Kits de inicio
-    * Laravel Cloud
-11. [Servicios REST](10laravelRest.md) (12h)
-    * Producción y consumo.
-    * *AJAX* con *JSON*.
 
 ## Evaluación
 
