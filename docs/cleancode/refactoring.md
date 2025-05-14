@@ -17,7 +17,7 @@ public class Conversor {
 }
 ```
 
-??? info Acciones realizadas
+??? info "Acciones realizadas"
 
     - Se define como constante `BTC_EUR_CHANGE_RATE`.
     - El método `conv` se renombra a `bitcoinsToEuros`.
@@ -48,7 +48,7 @@ public class Conversor {
 }
 ```
 
-??? info Acciones realizadas
+??? info "Acciones realizadas"
 
     - Se define como constante `BTC_EUR_CHANGE_RATE`.
     - El método `conv` se renombra a `bitcoinsToEuros`.
@@ -79,7 +79,7 @@ public class Conversor {
 }
 ```
 
-??? info Acciones realizadas
+??? info "Acciones realizadas"
 
     - Se define como constante `BTC_EUR_CHANGE_RATE`.
     - El método `conv` se renombra a `bitcoinsToEuros`.
