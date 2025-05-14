@@ -4,10 +4,8 @@ use_directory_urls: false
 
 nav:
   - "Inicio": "index.md"
-  - "1.- Clean Code": "cleancode.md"
-  # - "10.- Servicios REST": "10laravelRest.md"
-  - "Clean Code (por subpáginas, mejor así)": # Importante al ser categoría, NO enlazar a ningún md
-    - "Refactorización": "cleancode.md"
+  - "Clean Code": # Importante al ser categoría, NO enlazar a ningún md
+    - "Refactorización": "./cleancode/refactoring.md"
   #  - "Tema 9": "09actividadesResueltas.md"
 
 
