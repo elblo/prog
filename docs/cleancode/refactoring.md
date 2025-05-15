@@ -13,16 +13,18 @@ A continuación se presentan diferentes técnicas para refactorizar código. En 
 
 Cambiar nombres de variables y métodos por otros adecuados para su contexto aporta una mayor legibilidad del código y aclara su propósito.
 
-En el siguiente ejemplo no queda claro qué hace el método o qué almacenan las variables.
+???+ warning "Código mejorable..."
 
-``` java title="rename/Conversor.java"
-public class Conversor {
-	public float conv (float c) {
-		float x = c * 92678.27f;
-		return x;
-	   }
-}
-```
+    - No queda claro qué hace el método o qué almacenan las variables.
+
+    ``` java title="rename/Conversor.java"
+    public class Conversor {
+        public float conv (float c) {
+            float x = c * 92678.27f;
+            return x;
+        }
+    }
+    ```
 
 Todos los IDEs modernos tienen herramientas de refactorización que es conveniente saber utilizar para evitar despistes al realizar cambios manuales. En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
 
@@ -48,25 +50,27 @@ Todos los IDEs modernos tienen herramientas de refactorización que es convenien
 
 Ocultar propiedades y métodos que no se usen desde fuera haciéndolos privados mejora las operaciones de acceso sin exponer detalles internos de la propia clase.
 
-``` java title="encapsulate/Customer.java"
-public class Customer {
-	String name;
-	int id;
+???+ warning "Código mejorable..."
 
-	public Customer() {
-		init();
-	}
+    ``` java title="encapsulate/Customer.java"
+    public class Customer {
+        String name;
+        int id;
 
-	public void init() {
-		name = "Eugene Krabs";
-		id = 42;
-	}
+        public Customer() {
+            init();
+        }
 
-	public String toString() {
-		return id + ":" + name;
-	}
-}
-```
+        public void init() {
+            name = "Eugene Krabs";
+            id = 42;
+        }
+
+        public String toString() {
+            return id + ":" + name;
+        }
+    }
+    ```
 
 En IntelliJ IDEA, seleccionar la variable y `Refactor > Encapsulate Fields`.
 
@@ -106,25 +110,27 @@ En IntelliJ IDEA, seleccionar la variable y `Refactor > Encapsulate Fields`.
 
 Extraer valores literales a constantes para aclarar el propósito del valor, aumentar la legibilidad, facilitar su cambio o incluso facilitar el uso de valores complejos como PI.
 
-``` java title="magicnumbers/PasswordGenerator.java" hl_lines="6"
-public class PasswordGenerator {
-	private Random random = new Random();
-	private String characters = "abcdefghijkmnopqrstuvwxyz23456789";
+???+ warning "Código mejorable..."
 
-	public String generatePassword(int length) throws Exception {
-		if (length < 6 || length > 15) {
-			throw new Exception("Wrong password length: " + length);
-		} else {
-			String password = "";
+    ``` java title="magicnumbers/PasswordGenerator.java" hl_lines="6"
+    public class PasswordGenerator {
+        private Random random = new Random();
+        private String characters = "abcdefghijkmnopqrstuvwxyz23456789";
 
-			for (int i = 0; i < length; i++)
-				password += characters.charAt(random.nextInt(characters.length()));
+        public String generatePassword(int length) throws Exception {
+            if (length < 6 || length > 15) {
+                throw new Exception("Wrong password length: " + length);
+            } else {
+                String password = "";
 
-			return password;
-		}
-	}
-}
-```
+                for (int i = 0; i < length; i++)
+                    password += characters.charAt(random.nextInt(characters.length()));
+
+                return password;
+            }
+        }
+    }
+    ```
 
 En IntelliJ IDEA, seleccionar el valor literal y `Refactor > Introduce Constant`.
 
@@ -159,6 +165,7 @@ En IntelliJ IDEA, seleccionar el valor literal y `Refactor > Introduce Constant`
 Extraer el código de un método en tantos otros como sea necesario para que cada uno tenga un tamaño máximo de unas 5 líneas aumenta la legibilidad y reduce el código duplicado.
 
 ???+ warning "Código mejorable..."
+
     ``` java title="extractmethod/UrlNormalizer.java"
     public class UrlNormalizer {
 
@@ -201,7 +208,7 @@ En IntelliJ IDEA, seleccionar el código que nos interese extraer y `Refactor > 
 
 ??? abstract "Refactorización"
 
-    - acciones
+    - Se extrae a métodos independientes cada fragmento de código que resuelva una pequeña tarea.
 
     ``` java title="extractmethod/refactored/UrlNormalizer.java"
     public class UrlNormalizer {
@@ -247,4 +254,75 @@ En IntelliJ IDEA, seleccionar el código que nos interese extraer y `Refactor > 
             return url;
         }
     }
+    ```
+
+## Introducir métodos
+
+Reintroducir el código de un método dentro del método que lo llama para simplificar el código al prescindir de métodos demasiado simples u obvios. Hace el código más legible, simplifica las clases y evita la proliferación excesiva de métodos.
+
+???+ warning "Código mejorable..."
+
+    ``` java title="inlinemethod/UrlCleaner.java"
+    public class UrlCleaner {
+
+        public String clean(String title) {
+            String url = trimSpaces(title);
+
+            url = removeSpecialChars(url);
+            url = replaceSpaces(url);
+            url = url.toLowerCase();
+
+            return url;
+        }
+
+        private String replaceSpaces(String url) {
+            return url.replaceAll("[\\s]+", " ").replaceAll("[\\s]", "-");
+        }
+
+        private String removeSpecialChars(String url) {
+
+            return url.replaceAll("[\\.\\:\\,\\?\\!\\_\\;]", "");
+        }
+
+        private String trimSpaces(String url) {
+            return url.trim();
+        }
+    }
+    ```
+
+En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
+
+??? abstract "Refactorización"
+
+    - Se reducen todos los métodos a un único método gracias al uso de expresiones reguales.
+
+    ``` java title="inlinemethod/refactored/UrlCleaner.java"
+    public class UrlCleaner {
+        public String clean (String title) {
+            return title.trim()
+                        .replaceAll("[\\.\\:\\,\\?\\!\\_\\;]", "")  // Replaces special chars
+                        .replaceAll("[\\s]+"," ")                   // Replace duplicated spaces
+                        .replaceAll("[\\s]","-");                   // Replace spaces with hyphen
+        }
+    }
+    ```
+
+## Convertir parámetros en objetos
+
+Definición
+
+???+ warning "Código mejorable..."
+
+    ``` java title="packet/Class.java"
+
+    ```
+
+En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
+
+??? abstract "Refactorización"
+
+    - acciones
+
+    ``` java title="packet/refactored/Class.java"
+
     ```
