@@ -280,7 +280,6 @@ Reintroducir el código de un método dentro del método que lo llama para simpl
         }
 
         private String removeSpecialChars(String url) {
-
             return url.replaceAll("[\\.\\:\\,\\?\\!\\_\\;]", "");
         }
 
@@ -294,7 +293,7 @@ En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
 
 ??? abstract "Refactorización"
 
-    - Se reducen todos los métodos a un único método gracias al uso de expresiones reguales.
+    - Se reducen todos los métodos a un único método.
 
     ``` java title="inlinemethod/refactored/UrlCleaner.java"
     public class UrlCleaner {
