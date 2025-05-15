@@ -2,11 +2,12 @@
 
 ## Introducción
 
+Refactorizar es **cambiar el código mejorando su estructura** sin alterar su comportamiento.
+
 > "Cualquiera puede escribir código que un ordenador pueda entender. Los buenos programadores son aquellos que escriben código que los humanos puedan entender." - Martin Fowler
 
 A continuación se presentan diferentes técnicas para refactorizar código. En cada apartado encontrarás el código original y el refactorizado. Es posible y recomendable aplicar varias de las técnicas a un mismo código.
 
-> Refactorizar es **cambiar el código mejorando su estructura** sin alterar su comportamiento.
 
 ## Renombrar variables y métodos
 
@@ -23,14 +24,14 @@ public class Conversor {
 }
 ```
 
-??? info "Refactorizacón"
+??? success "Refactorizacón"
 
     - Se define como constante `BTC_EUR_CHANGE_RATE`.
     - El método `conv` se renombra a `bitcoinsToEuros`.
     - La variable `c` se renombra a `bitcoins`.
     - La variable `x` se renombra a `euros`.
 
-    ``` java title="rename/refactores/Conversor.java"
+    ``` java title="rename/refactored/Conversor.java"
     public class Conversor {
         private static final float BTC_EUR_CHANGE_RATE = 92678.27f;
 
@@ -40,6 +41,9 @@ public class Conversor {
         }
     }
     ```
+
+!!! tip
+    Usar las herramientas de refactor rename de los IDEs.
 
 ## Ocultar propiedades y métodos
 
@@ -54,7 +58,7 @@ public class Conversor {
 }
 ```
 
-??? info "Refactorizacón"
+??? note "Refactorizacón"
 
     - Se define como constante `BTC_EUR_CHANGE_RATE`.
     - El método `conv` se renombra a `bitcoinsToEuros`.
