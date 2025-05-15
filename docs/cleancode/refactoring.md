@@ -24,7 +24,7 @@ public class Conversor {
 }
 ```
 
-Todos los IDEs modernos tienen herramientas de refactorización que es conveniente saber utilizar para evitar despistes al realizar cambios manuales.
+Todos los IDEs modernos tienen herramientas de refactorización que es conveniente saber utilizar para evitar despistes al realizar cambios manuales. En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
 
 ??? abstract "Refactorizacón"
 
@@ -46,9 +46,61 @@ Todos los IDEs modernos tienen herramientas de refactorización que es convenien
 
 ## Encapsulación
 
-Ocultar propiedades y métodos que no se usen desde fuera haciéndolos privados.
+Ocultar propiedades y métodos que no se usen desde fuera haciéndolos privados mejora las operaciones de acceso sin exponer detalles internos de la propia clase.
 
-:smile:
+``` java title=":material-file-code: encapsulate/Customer.java"
+public class Customer {
+	String name;
+	int id;
+
+	public Customer() {
+		init();
+	}
+
+	public void init() {
+		name = "Eugene Krabs";
+		id = 42;
+	}
+
+	public String toString() {
+		return id + ":" + name;
+	}
+}
+```
+
+En IntelliJ IDEA, seleccionar la variable y `Refactor > Encapsulate Fields`.
+
+??? abstract "Refactorizacón"
+
+    - Se definen como privados los atributos `name` e `id`.    
+    - Se añaden sus getters y setters correspondientes.
+    - Se define como privado el método `init` porque sólo se usa internamente.
+
+    ``` java title="rename/refactored/Conversor.java"
+    public class Customer {
+        private String name;
+        private int id;
+
+        public Customer() {
+            init();
+        }
+
+        private void init() {
+            setName("Eugene Krabs");
+            setId(42);
+        }
+
+        String getName(){ return name; }
+        void setName(String name){ this.name = name; }
+
+        int getId(){ return id; }
+        void setId(int id){ this.id = id; }
+
+        public String toString() {
+            return getId() + ":" + getName();
+        }
+    }
+    ```
 
 
 ## Magic numbers
