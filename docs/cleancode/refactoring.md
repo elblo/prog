@@ -102,11 +102,11 @@ En IntelliJ IDEA, seleccionar la variable y `Refactor > Encapsulate Fields`.
     }
     ```
 
-## Magic numbers
+## Extraer constantes
 
-Extraer valores literales a constantes para aclarar el propósito del numéro, aumentar la legibilidad, facilitar su cambio o incluso facilitar el uso de números complejos como PI.
+Extraer valores literales a constantes para aclarar el propósito del valor, aumentar la legibilidad, facilitar su cambio o incluso facilitar el uso de valores complejos como PI.
 
-``` java title="magicnumbers/PasswordGenerator.java" hl_lines="5"
+``` java title="magicnumbers/PasswordGenerator.java" hl_lines="6"
 public class PasswordGenerator {
 	private Random random = new Random();
 	private String characters = "abcdefghijkmnopqrstuvwxyz23456789";
@@ -156,9 +156,9 @@ En IntelliJ IDEA, seleccionar el valor literal y `Refactor > Introduce Constant`
 
 ## Extraer métodos
 
-Extraer el código de un método en tantos otros como sea necesario para que cada uno tenga un tamaño máximo de unas 5 líneas.
+Extraer el código de un método en tantos otros como sea necesario para que cada uno tenga un tamaño máximo de unas 5 líneas aumenta la legibilidad y reduce el código duplicado.
 
-??? failure "Código"
+???+ warning "Código mejorable..."
     ``` java title="extractmethod/UrlNormalizer.java"
     public class UrlNormalizer {
 
