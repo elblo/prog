@@ -48,7 +48,7 @@ Todos los IDEs modernos tienen herramientas de refactorización que es convenien
 
 Ocultar propiedades y métodos que no se usen desde fuera haciéndolos privados mejora las operaciones de acceso sin exponer detalles internos de la propia clase.
 
-``` java title=":material-file-code: encapsulate/Customer.java"
+``` java title="encapsulate/Customer.java"
 public class Customer {
 	String name;
 	int id;
@@ -102,6 +102,54 @@ En IntelliJ IDEA, seleccionar la variable y `Refactor > Encapsulate Fields`.
     }
     ```
 
-
 ## Magic numbers
 
+Extraer valores literales a constantes para aclarar el propósito del numéro, aumentar la legibilidad y facilitar su cambio.
+
+``` java title="magicnumbers/PasswordGenerator.java" hl_lines="5"
+public class PasswordGenerator {
+	private Random random = new Random();
+	private String characters = "abcdefghijkmnopqrstuvwxyz23456789";
+
+	public String generatePassword(int length) throws Exception {
+		if (length < 6 || length > 15) {
+			throw new Exception("Wrong password length: " + length);
+		} else {
+			String password = "";
+
+			for (int i = 0; i < length; i++)
+				password += characters.charAt(random.nextInt(characters.length()));
+
+			return password;
+		}
+	}
+}
+```
+
+En IntelliJ IDEA, seleccionar el valor literal y `Refactor > Introduce Constant`.
+
+??? abstract "Refactorizacón"
+
+    - Crear constantes `MAX_PASSWORD_LENGTH` y `MIN_PASSWORD_LENGTH` para los valores literales 15 y 6.
+
+    ``` java title="magicnumbers/refactored/PasswordGenerator.java" hl_lines="2 3 8"
+    public class PasswordGenerator { 
+        private static final int MAX_PASSWORD_LENGTH = 15;
+        private static final int MIN_PASSWORD_LENGTH = 6;
+        private Random random = new Random();
+        private String characters = "abcdefghijkmnopqrstuvwxyz23456789";
+
+        public String generatePassword(int length) throws Exception {
+            if (length < MIN_PASSWORD_LENGTH || length > MAX_PASSWORD_LENGTH) {
+                throw new Exception("Wrong password length: " + length);
+            } else {
+                String password = "";
+
+                for (int i = 0; i < length; i++)
+                    password += characters.charAt(random.nextInt(characters.length()));
+
+                return password;
+            }
+        }
+    }
+    ```
