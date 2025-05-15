@@ -104,7 +104,7 @@ En IntelliJ IDEA, seleccionar la variable y `Refactor > Encapsulate Fields`.
 
 ## Magic numbers
 
-Extraer valores literales a constantes para aclarar el propósito del numéro, aumentar la legibilidad y facilitar su cambio.
+Extraer valores literales a constantes para aclarar el propósito del numéro, aumentar la legibilidad, facilitar su cambio o incluso facilitar el uso de números complejos como PI.
 
 ``` java title="magicnumbers/PasswordGenerator.java" hl_lines="5"
 public class PasswordGenerator {
@@ -128,7 +128,7 @@ public class PasswordGenerator {
 
 En IntelliJ IDEA, seleccionar el valor literal y `Refactor > Introduce Constant`.
 
-??? abstract "Refactorizacón"
+??? abstract "Refactorización"
 
     - Crear constantes `MAX_PASSWORD_LENGTH` y `MIN_PASSWORD_LENGTH` para los valores literales 15 y 6.
 
@@ -150,6 +150,101 @@ En IntelliJ IDEA, seleccionar el valor literal y `Refactor > Introduce Constant`
 
                 return password;
             }
+        }
+    }
+    ```
+
+## Extraer métodos
+
+Extraer el código de un método en tantos otros como sea necesario para que cada uno tenga un tamaño máximo de unas 5 líneas.
+
+??? failure "Código"
+    ``` java title="extractmethod/UrlNormalizer.java"
+    public class UrlNormalizer {
+
+        public String normalize(String title) {
+            String url = "";
+            // First we trim whitespaces
+            url = title.trim();
+
+            // Remove special chars
+            String specialRemoved = "";
+            for (int i = 0; i < url.length(); i++) {
+                if (url.charAt(i) != ',' && url.charAt(i) != ':' 
+                        && url.charAt(i) != '.' && url.charAt(i) != '?') {
+                    specialRemoved += url.charAt(i);
+                }
+            }
+
+            url = specialRemoved;
+
+            // Replace white spaces with hyphens
+            String spacesReplaced = "";
+            for (int i = 0; i < url.length(); i++) {
+                if (url.charAt(i) == ' ') {
+                    spacesReplaced += "-";
+                } else {
+                    spacesReplaced += url.charAt(i);
+                }
+            }
+            url = spacesReplaced;
+
+            // lowercase everything
+            url = url.toLowerCase();
+
+            return url;
+        }
+    }
+    ```
+
+En IntelliJ IDEA, seleccionar el código que nos interese extraer y `Refactor > Extract Method`.
+
+??? abstract "Refactorización"
+
+    - acciones
+
+    ``` java title="extractmethod/refactored/UrlNormalizer.java"
+    public class UrlNormalizer {
+
+        public String normalize(String title) {
+            String url = trimSpaces(title);
+
+            url = removeSpecialChars(url);
+            url = replaceSpaces(url);
+            url = url.toLowerCase();
+
+            return url;
+        }
+
+        private String replaceSpaces(String url) {
+            String spacesReplaced = "";
+            for (int i = 0; i < url.length(); i++) {
+                if (url.charAt(i) == ' ') {
+                    spacesReplaced += "-";
+                } else {
+                    spacesReplaced += url.charAt(i);
+                }
+            }
+            url = spacesReplaced;
+            return url;
+        }
+
+        private String removeSpecialChars(String url) {
+            String specialRemoved = "";
+            for (int i = 0; i < url.length(); i++) {
+                if (url.charAt(i) != ',' && url.charAt(i) != ':' 
+                        && url.charAt(i) != '.' && url.charAt(i) != '?') {
+                    specialRemoved += url.charAt(i);
+                }
+            }
+            url = specialRemoved;
+            return url;
+        }
+
+        private String trimSpaces(String title) {
+            String url = "";
+            url = title.trim();
+            return url;
         }
     }
     ```
