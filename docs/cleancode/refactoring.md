@@ -11,7 +11,7 @@ A continuación se presentan diferentes técnicas para refactorizar código. En 
 
 ## Renombrar variables y métodos
 
-Cambiar nombres de variables y métodos por otros adecuados para su contexto.
+Cambiar nombres de variables y métodos por otros adecuados para su contexto aporta una mayor legibilidad del código y aclara su propósito.
 
 En el siguiente ejemplo no queda claro qué hace el método o qué almacenan las variables.
 
@@ -24,7 +24,9 @@ public class Conversor {
 }
 ```
 
-??? success "Refactorizacón"
+Todos los IDEs modernos tienen herramientas de refactorización que es conveniente saber utilizar para evitar despistes al realizar cambios manuales.
+
+??? abstract "Refactorizacón"
 
     - Se define como constante `BTC_EUR_CHANGE_RATE`.
     - El método `conv` se renombra a `bitcoinsToEuros`.
@@ -42,67 +44,12 @@ public class Conversor {
     }
     ```
 
-!!! tip
-    Usar las herramientas de refactor rename de los IDEs.
+## Encapsulación
 
-## Ocultar propiedades y métodos
+Ocultar propiedades y métodos que no se usen desde fuera haciéndolos privados.
 
-Usar nombres adecuados para variables y métodos.
+:smile:
 
-```java
-public class Conversor {
-	public float conv (float c) {
-		float x = c * 92678.27f;
-		return x;
-	   }
-}
-```
-
-??? note "Refactorizacón"
-
-    - Se define como constante `BTC_EUR_CHANGE_RATE`.
-    - El método `conv` se renombra a `bitcoinsToEuros`.
-    - La variable `c` se renombra a `bitcoins`.
-    - La variable `x` se renombra a `euros`.
-
-    ```java
-    public class Conversor {
-        private static final float BTC_EUR_CHANGE_RATE = 92678.27f;
-
-        public float bitcoinsToEuros (float bitcoins) {
-            float euros = bitcoins * EUR_BTC_CHANGE_RATE;
-            return euros;
-        }
-    }
-    ```
 
 ## Magic numbers
 
-Usar nombres adecuados para variables y métodos.
-
-```java
-public class Conversor {
-	public float conv (float c) {
-		float x = c * 92678.27f;
-		return x;
-	   }
-}
-```
-
-??? info "Refactorizacón"
-
-    - Se define como constante `BTC_EUR_CHANGE_RATE`.
-    - El método `conv` se renombra a `bitcoinsToEuros`.
-    - La variable `c` se renombra a `bitcoins`.
-    - La variable `x` se renombra a `euros`.
-
-    ```java
-    public class Conversor {
-        private static final float BTC_EUR_CHANGE_RATE = 92678.27f;
-
-        public float bitcoinsToEuros (float bitcoins) {
-            float euros = bitcoins * EUR_BTC_CHANGE_RATE;
-            return euros;
-        }
-    }
-    ```

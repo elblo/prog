@@ -8,8 +8,6 @@ nav:
     - "Refactorización": "./cleancode/refactoring.md"
   #  - "Tema 9": "09actividadesResueltas.md"
 
-
-
 theme:
   language: es
   favicon: imagenes/favicon.png
