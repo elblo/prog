@@ -34,6 +34,8 @@ theme:
   features:
     - header.autohide
     - toc.integrate
+    - content.code.copy # poder copiar el código fuente de los ejemplos
+    - content.code.select
     - content.tabs.link
     # - navigation.tabs
     # - navigation.top
