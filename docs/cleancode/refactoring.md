@@ -308,20 +308,143 @@ En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
 
 ## Convertir parámetros en objetos
 
-Definición
+Sustituir una lista de parámetros de un método por un objeto para simplificar su uso.
 
 ???+ warning "Código mejorable..."
 
-    ``` java title="packet/Class.java"
+    - El método `addItem` tiene demasiados parámetros.
 
+    ``` java title="parameterobject/Order.java" hl_lines="4"
+    public class Order {
+        private Hashtable<String, Float> items = new Hashtable<String, Float>();
+
+        public void addItem(Integer productID, String description, Integer quantity, Float price, Float discount) {
+            items.put(productID + ": " + description, (quantity * price) - (quantity * price * discount));
+        }
+
+        public float calculateTotal() {
+            float total = 0;
+            Enumeration<String> keys = items.keys();
+
+            while (keys.hasMoreElements()) {
+                total = total + items.get(keys.nextElement());
+            }
+            return total;
+        }
+    }
+    ```
+
+En IntelliJ IDEA, seleccionar el método y `Refactor > Introduce Parameter Object`.
+
+??? abstract "Refactorización"
+
+    - Se crea una clase `OrderItem` que agrupa en sus atributos los antiguos parámetros.
+
+    ``` java title="parameterobject/refactored/Order.java" hl_lines="4"
+    public class Order {
+        private Hashtable<String, Float> items = new Hashtable<String, Float>();
+        
+        public void addItem (OrderItem orderItem) {
+            items.put(orderItem.getProductID() + ": " + orderItem.getDescription(), orderItem.totalItem());
+        }
+        
+        public float calculateTotal () {
+            float total = 0;
+            Enumeration<String> keys = items.keys();
+            
+            while(keys.hasMoreElements()) {
+                total  = total + items.get(keys.nextElement());
+            }
+            
+            return total;
+        }
+    }
+    ```
+
+    ``` java title="parameterobject/refactored/OrderItem.java"
+    public class OrderItem {
+        private int productID;
+        private String description;
+        private int quantity;
+        private float price;
+        private float discount;
+
+        public OrderItem(int productID, String description, int quantity, float price, float discount) {
+            this.productID = productID;
+            this.description = description;
+            this.quantity = quantity;
+            this.price = price;
+            this.discount = discount;
+        }
+
+        public float totalItem () {
+            return (quantity*price) - (quantity*price*discount);
+        }
+
+        public Integer getProductID() {
+            return productID;
+        }
+
+        public String getDescription() {
+            return description;
+        }        
+    }
+    ```
+
+## Reemplazar variable temporal con consulta
+
+Extraer el valor de una variable temporal a un método para reutilizar expresiones y producir un código más legible.
+
+???+ warning "Código mejorable..."
+
+    ``` java title="replacetempwithquery/Student.java" hl_lines="11"
+    public class Student {
+        private String name;
+        private boolean hasGoodAttitude;
+
+        public Student(String name, boolean hasGoodAttitude) {
+            this.name = name;
+            this.hasGoodAttitude = hasGoodAttitude;
+        }
+
+        public float calculateAverage(float homework, float exam) {
+            float mark = (homework + exam) / 2;
+
+            if (hasGoodAttitude) {
+                return mark + 1;
+            } else {
+                return mark;
+            }
+        }
+    }
     ```
 
 En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
 
 ??? abstract "Refactorización"
 
-    - acciones
+    - En el método `mark` se extrae la operación que se le asignaba a la variable temporal.
 
-    ``` java title="packet/refactored/Class.java"
+    ``` java title="replacetempwithquery/refactored/Student.java" hl_lines="12 14 18-20"
+    public class StudentRefactored {
+        private String name;
+        private boolean hasGoodAttitude;
 
+        public Student(String name, boolean hasGoodAttitude) {
+            this.name = name;
+            this.hasGoodAttitude = hasGoodAttitude;
+        }
+
+        public float calculateAverage(float homework, float exam) {
+            if (hasGoodAttitude) {
+                return mark(homework, exam) + 1;
+            } else {
+                return mark(homework, exam);
+            }
+        }
+
+        private float mark(float homework, float exam) {
+            return (homework + exam) / 2;
+        }
+    }
     ```
