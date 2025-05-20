@@ -419,7 +419,7 @@ Extraer el valor de una variable temporal a un método para reutilizar expresion
     }
     ```
 
-En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
+En IntelliJ IDEA, seleccionar la asignación y `Refactor > Extract Method`.
 
 ??? abstract "Refactorización"
 
@@ -447,4 +447,178 @@ En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
             return (homework + exam) / 2;
         }
     }
+    ```
+
+## Introducir variable explicativa
+
+Introducir variables para explicar una expresión compleja. Muy útil en condicionales.
+
+???+ warning "Código mejorable..."
+
+    - La condición es muy compleja y difícil de entender a simple vista.
+
+    ``` java title="explainingvariable/Customer.java" hl_lines="13"
+    class Customer {
+        private String name;
+        private int age;
+        private float salary;
+        
+        public Customer(String name, int age, float salary) {
+            this.name = name;
+            this.age = age;
+            this.salary = salary;
+        }
+
+        public float applyDiscount (float totalAmount) {
+            if ((age > 17 && age < 66) && (salary - (salary * 0.2f)) < 1000f && totalAmount * 0.5 < 100) {
+                return totalAmount * 0.9f;
+            } else {
+                return totalAmount;
+            }
+        }
+    }
+    ```
+
+En IntelliJ IDEA, seleccionar la expresión a extraer y `Refactor > Introduce Variable`.
+
+??? abstract "Refactorización"
+
+    - Se extraen a variables cada una de las expresiones del condicional.
+
+    ``` java title="explainingvariable/refactored/Customer.java" hl_lines="17"
+    class Customer {
+        private String name;
+        private int age;
+        private float salary;
+        
+        public Customer(String name, int age, float salary) {
+            this.name = name;
+            this.age = age;
+            this.salary = salary;
+        }
+        
+        public float applyDiscount (float totalAmount) {
+            boolean isWorkingAge = (age > 17 && age < 66);
+            boolean isLowSalary = (salary - (salary * 0.2f)) < 1000f;
+            boolean isLittleAmount = totalAmount * 0.5 < 100;
+            
+            if (isWorkingAge && isLowSalary && isLittleAmount) {
+                return totalAmount * 0.9f;
+            } else {
+                return totalAmount;
+            }
+        }
+    }
+    ```
+
+
+## Separar variable temporal
+
+Utilizar variables específicas para cada propósito del método en lugar de una temporal que acumule todas las operaciones. Así, cada variable tendrá una responsabilidad única y evitamos posibles efectos inesperados.
+
+???+ warning "Código mejorable..."
+
+    - La variable `temp` se usa como cajón de sastre para todos los cálculos.
+
+    ``` java title="splittemporaryvariable/Invoice.java" hl_lines="4"
+    public class Invoice {
+
+        public float totalPrice (float price, float vat, float discount) {
+            float temp = 0;
+            temp = (vat * price) / 100;
+            System.out.println("Applied vat: " + temp);
+
+            temp = price + temp;
+            System.out.println("Total with vat: " + temp);
+
+            return temp - discount;
+        }
+    }
+    ```
+
+??? abstract "Refactorización"
+
+    - Se crean variables específicas `appliedVat` y `priceWithVat` para cada operación.
+    - Otro paso adidiconal sería extraer a un método específico la operación de cada variable.
+
+    ``` java title="splittemporaryvariable/refactored/Invoice.java" hl_lines="4 7"
+    public class Invoice {
+	
+        public float totalPrice (float price, float vat, float discount) {
+            float appliedVat = (vat * 100) / price;		
+            System.out.println("Applied vat: " + appliedVat);
+            
+            float priceWithVat = price + appliedVat;
+            System.out.println("Total: " + priceWithVat);
+            
+            return priceWithVat - discount;
+        }
+    }
+    ```
+
+## Eliminar asignaciones a parámetros
+
+Evitar que se asignen valores a un parámetro dentro de un método utilizando una variable local. Se evitan efectos inesperados y así cada parámetro tiene un propósito único.
+
+???+ warning "Código mejorable..."
+
+    - Se modifica los valores de los parámetros `examMark` y `homeworkMark` dentro del método.
+
+    ``` java title="removeparameterassignment/Student.java" hl_lines=4 8"
+    public class Student {
+        public float evaluateTerm(float homeworkMark, float examMark, float attitude) {
+            if (examMark < 5) {
+                examMark = 1;
+            }
+
+            if (homeworkMark < 4) {
+                homeworkMark = 1;
+            }
+            return (homeworkMark + examMark) / 2 + attitude;
+        }
+    }
+    ```
+
+??? abstract "Refactorización"
+
+    - Se crea la variable local `finalMark` para no modificar los parámetros.
+
+    ``` java title="removeparameterassignment/refactored/Student.java" hl_lines="3"
+    public class Student {
+        public float evaluateTerm(float homeworkMark, float examMark, float attitude) {
+            float finalMark = 0;
+            if (examMark < 5) {
+                finalMark = 1;
+            } else {
+                finalMark = examMark;
+            }
+
+            if (homeworkMark < 4) {
+                finalMark = finalMark + 1;
+            } else {
+                finalMark = finalMark + homeworkMark;
+            }
+            return (finalMark) / 2 + attitude;
+        }
+    }
+    ```
+
+## Reemplazar método con un objeto
+
+Definición
+
+???+ warning "Código mejorable..."
+
+    ``` java title="packet/Class.java" hl_lines=""
+
+    ```
+
+En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
+
+??? abstract "Refactorización"
+
+    - acciones
+
+    ``` java title="packet/refactored/Class.java" hl_lines=""
+
     ```
