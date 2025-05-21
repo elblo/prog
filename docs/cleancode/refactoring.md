@@ -605,20 +605,373 @@ Evitar que se asignen valores a un parámetro dentro de un método utilizando un
 
 ## Reemplazar método con un objeto
 
-Definición
+Extraer un método complejo o extenso a una clase aparte para simplificarlo.
 
 ???+ warning "Código mejorable..."
 
-    ``` java title="packet/Class.java" hl_lines=""
+    - El método `applyDiscount` es demasiado extenso y se extraerá a una clase.
 
+    ``` java title="replacemethodwithmethodobject/Customer.java" hl_lines="17"
+    public class Customer {
+
+        private boolean isVip;
+        private boolean isSpecial;
+        private int type;
+
+        public static final int NORMAL = 0;
+        public static final int SPECIAL = 1;
+        public static final int VIP = 2;
+
+        public Customer(boolean isVip, boolean isSpecial, int type) {
+            this.isVip = isVip;
+            this.isSpecial = isSpecial;
+            this.type = type;
+        }
+
+        public double applyDiscount(double price, double discount) {
+            double finalPrice;
+            double appliedVat;
+            
+            switch (getType()) {
+            case Customer.NORMAL:
+                appliedVat = 1.21f;
+                break;
+            case Customer.SPECIAL:
+                appliedVat = 1.15f;
+                break;
+            case Customer.VIP:
+                appliedVat = 1.04f;
+                break;
+            default:
+                appliedVat = 1.21f;
+                break;
+            }
+
+            if (price > 50 && isVip()) {
+                finalPrice = price * 0.5;
+            } else if (price > 10 && isSpecial()) {
+                finalPrice = price * 0.1;
+            } else {
+                finalPrice = price;
+            }
+
+            return finalPrice * appliedVat - discount;
+        }
+        
+        public int getType() {
+            return type;
+        }
+
+        public boolean isVip() {
+            return isVip;
+        }
+
+        public boolean isSpecial() {
+            return isSpecial;
+        }
+    }
+    ```
+
+??? abstract "Refactorización"
+
+    - Se ha creado la clase `DiscountCalculator` con el método `applyDiscount`, el que a su vez, se ha extraido a métodos.
+    - Mejora adicional: Sustituir el `switch` por una jerarquía de clases en la que la llamada al tipo de cliente se resuelva mediante ligadura dinámica.
+
+    ``` java title="replacemethodwithmethodobject/refactored/DiscountCalculator.java" hl_lines="16"
+    public class DiscountCalculator {
+        private double finalPrice;
+        private double appliedVat;
+        private double price;
+        private Customer customer;
+        private double discount;
+
+        public DiscountCalculator(double price, Customer customer, double discount) {
+            finalPrice = 0;
+            appliedVat = 0;
+            this.price = price;
+            this.customer = customer;
+            this.discount = discount;
+        }
+
+        public double applyDiscount() {
+            return calculatePrice() * calculateVat() - discount;
+        }
+
+        private double calculateVat() {
+            switch (customer.getType()) {
+                case Customer.NORMAL:
+                    return 1.21f;
+                case Customer.SPECIAL:
+                    return 1.15f;
+                case Customer.VIP:
+                    return 1.04f;
+                default:
+                    return 1.21f;
+            }
+        }
+
+        private double calculatePrice() {
+            if (price > 50 && customer.isVip()) {
+                finalPrice = price * 0.5;
+            } else if (price > 10 && customer.isSpecial()) {
+                finalPrice = price * 0.1;
+            } else {
+                finalPrice = price;
+            }
+
+            return finalPrice;
+        }
+    }
+    ```
+
+## Descomponer condicional
+
+Sustituir expresiones complejas de un condicional por una llamada a un método. Así, se reducen los métodos y se crean condiciones reutilizables más expresivas. 
+
+Similar a la refactorización vista de **Introducir variable explicativa**, pero con un método.
+
+???+ warning "Código mejorable..."
+
+    ``` java title="decomposeconditional/Invoice.java" hl_lines="11"
+    public class Invoice {
+        private Customer customer;
+        
+        public Invoice (Customer customer) {
+            this.customer = customer;
+        }
+        
+        public float calculatePayment (float price, float discount, float vat) {
+            float payment = 0;
+            
+            if (customer.getAge() < 18 || customer.getAge() > 65 ) {
+                payment = price * discount * vat;
+            }else {
+                payment = price * vat;
+            }
+            
+            return payment;
+        }
+    }
+    ```
+
+En IntelliJ IDEA, seleccionar la expresión condicional y `Refactor > Extract Method`.
+
+??? abstract "Refactorización"
+
+    - Se crea el método `canApplyDiscount` para sustituir las expresiones complejas anteriores.
+
+    ``` java title="decomposeconditional/refactored/Invoice.java" hl_lines="12"
+    public class Invoice {
+        
+        private Customer customer;
+        
+        public Invoice (Customer customer) {
+            this.customer = customer;
+        }
+        
+        public float calculatePayment (float price, float discount, float vat) {
+            float payment = 0;
+            
+            if (canApplyDiscount() ) {
+                payment = price * discount * vat;
+            }else {
+                payment = price * vat;
+            }
+
+            return payment;
+        }
+
+        private boolean canApplyDiscount() {
+            return customer.getAge() < 18 || customer.getAge() > 65;
+        }
+    }
+    ```
+
+## Consolidar expresión condicional
+
+Agrupar los bloques condicionales que comparten el mismo código reduciendo el tamaño de los métodos y evitando código duplicado.
+
+???+ warning "Código mejorable..."
+
+    - Varios bloques condicionales tienen exactamente el mismo código.
+
+    ``` java title="consolidateconditional/Invoice.java" hl_lines="13 15 17"
+    public class Invoice {
+
+        private Customer customer;
+        private int year;
+
+        public Invoice(Customer customer, int year) {
+            this.customer = customer;
+            this.year = year;
+        }
+
+        public float calculateTotal(float subtotal, float vat) {
+            if (customer.getAge() < 18)
+                return 0;
+            if (new GregorianCalendar().get(Calendar.YEAR) > year)
+                return 0;
+            if (subtotal < 0.5f)
+                return 0;
+
+            return subtotal * vat;
+        }
+    }
+    ```
+
+??? abstract "Refactorización"
+
+    - El código compartido se agrupa bajo una misma condición múltiple.
+    - Se aplica además la refactorización anterior **Descomponer condicional** para extraer a un método dicho condicional.
+
+    ``` java title="consolidateconditional/refactored/Invoice.java" hl_lines="20"
+        public class Invoice {
+
+        private Customer customer;
+        private int year;
+
+        public Invoice(Customer customer, int year) {
+            this.customer = customer;
+            this.year = year;
+        }
+
+        public float calculateTotal(float subtotal, float vat) {
+            if (isUselessToCharge(subtotal)) {
+                return 0;
+            } else {
+                return subtotal * vat;
+            }
+        }
+
+        private boolean isUselessToCharge(float subtotal) {
+            return (customer.getAge() < 18) || (new Date().getYear() > year) || (subtotal < 0.5f);
+        }
+    }
+    ```
+
+## Consolidar fragmentos de condicional duplicados
+
+Extraer código repetido en diferentes bloques de condicionales para evitar la duplicidad.
+
+???+ warning "Código mejorable..."
+
+    - Algunas operaciones de los bloques del condicional son exactamente iguales y se podrían dejar fuera de los condicionales para que se apliquen en ambos casos.
+
+    ``` java title="consolidateduplicateconditional/Invoice.java" hl_lines="17 21"
+    public class Invoice {
+	
+        private Customer customer;
+        private float price;
+        private int qty;
+        
+        public Invoice (Customer customer, float price, int qty) {
+            this.customer = customer;
+            this.price = price;
+            this.qty = qty;
+        }
+        
+        public float calculateTotal (float vat, float discount) {
+            float subtotal = 0;
+            if (customer.isVip()) {
+                subtotal = (price * qty) - discount;
+                subtotal = subtotal * (1 + (vat/100));
+                return subtotal;
+            } else {
+                subtotal = (price * qty);
+                subtotal = subtotal * (1 + (vat/100));
+                return subtotal;
+            }
+        }
+    }
     ```
 
 En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
 
 ??? abstract "Refactorización"
 
-    - acciones
+    - La operación duplicada se extrae fuera de los condiciones, aplicándola así en todos los casos.
 
-    ``` java title="packet/refactored/Class.java" hl_lines=""
+    ``` java title="consolidateduplicateconditional/refactored/Invoice.java" hl_lines="20"
+    public class Invoice {
+	
+        private Customer customer;
+        private float price;
+        private int qty;
+        
+        public Invoice (Customer customer, float price, int qty) {
+            this.customer = customer;
+            this.price = price;
+            this.qty = qty;
+        }
+        
+        public float calculateTotal (float vat, float discount) {
+            float subtotal = 0;
+            if (customer.isVip()) {
+                subtotal = (price * qty) - discount;
+            } else {
+                subtotal = (price * qty);
+            }
+            return subtotal * (1 + (vat/100));
+        }
+    }
+    ```
 
+## Eliminar bandera de control
+
+Eliminar variables que se utilizan para controlar el flujo del programa y en su lugar utilizar *break*, *continue* o *return* para conseguir el mismo propósito.
+
+???+ warning "Código mejorable..."
+
+    - Existe una variable bandera `found` que sería interesante eliminar.
+
+    ``` java title="removecontrolflag/Friends.java" hl_lines="9"
+    public class Friends {
+        private String[] friends;
+        
+        public Friends (String[] friends) {
+            this.friends = friends;
+        }
+        
+        public int indexOf (String friend) {
+            boolean found = false; // Bandera
+            int i = 0;
+            
+            while (i < friends.length && !found ) { 
+                if (friends[i].equals(friend)) {
+                    found = true;
+                }
+                i++;
+            }
+            
+            if (found) {
+                return (i-1);
+            } else {
+                return -1;
+            }
+        }
+    }
+    ```
+
+En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
+
+??? abstract "Refactorización"
+
+    - Se podría sustituir la variable bandara con un `break` para salir del bucle, pero mucho mejor es hacerlo con el `return` devolviendo la posición directamente. 
+
+    ``` java title="packet/removecontrolflag/Friends.java" hl_lines="11"
+    public class Friends {
+        private String[] friends;
+        
+        public Friends (String[] friends) {
+            this.friends = friends;
+        }
+        
+        public int indexOf (String friend) {
+            for (int i = 0; i< friends.length; i++) 
+                if (friends[i].equals(friend)) 
+                    return i;
+            
+            return -1;
+        }
+    }
     ```
