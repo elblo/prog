@@ -39,12 +39,20 @@ Todos los IDEs modernos tienen herramientas de refactorización que es convenien
     public class Conversor {
         private static final float BTC_EUR_CHANGE_RATE = 92678.27f;
 
-        public float bitcoinsToEuros (float bitcoins) {
+        public float convertBitcoinsToEuros (float bitcoins) {
             float euros = bitcoins * EUR_BTC_CHANGE_RATE;
             return euros;
         }
     }
     ```
+
+!!! abstract "Recomendación"
+    
+    Como norma general a la hora de nombrar se suele utilizar:
+
+    - **Sustantivos** para *variables*. Ej: `price`.
+    - **Verbos** para *métodos*. Ej: `getPrice`.
+
 
 ## Encapsulación
 
@@ -675,7 +683,7 @@ Extraer un método complejo o extenso a una clase aparte para simplificarlo.
 ??? abstract "Refactorización"
 
     - Se ha creado la clase `DiscountCalculator` con el método `applyDiscount`, el que a su vez, se ha extraido a métodos.
-    - Mejora adicional: Sustituir el `switch` por una jerarquía de clases en la que la llamada al tipo de cliente se resuelva mediante ligadura dinámica.
+    - Mejora adicional: Sustituir el `switch` por una jerarquía de clases en la que la llamada al tipo de cliente se resuelva mediante polimorfismo.
 
     ``` java title="replacemethodwithmethodobject/refactored/DiscountCalculator.java" hl_lines="16"
     public class DiscountCalculator {
@@ -974,4 +982,529 @@ En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
             return -1;
         }
     }
+    ```
+
+## Reemplazar condicionales anidados con claúsulas guard
+
+Simplificar los condicionales anidados llegando idealmente a un único nivel para facilitar su legibilidad.
+
+Una **cláusula guard** (también llamada "early return" o "return early") es una técnica de programación que permite evitar la anidación excesiva de estructuras condicionales (if-else) en el código. Sirve para hacer que el código sea más legible y fácil de entender, al "filtrar" las condiciones al principio de una función y retornar antes si alguna condición no se cumple.
+
+???+ warning "Código mejorable..."
+
+    - Hay demasiados niveles if-else anidados que dificultan su comprensión.
+
+    ``` java title="replacenestedconditionalguardclauses/Flight.java" hl_lines="14-26"
+    public class Flight {
+	
+        private static final float CHILDREN_DISCOUNT = 0.9f;
+        private static final float UNEMPLOYED_DISCOUNT = 0.8f;
+        private static final int BASE_PRICE = 20;
+        private int distance;
+        
+        public Flight (int distance) {
+            this.distance = distance;
+        }
+
+        public float priceForPassenger (Passenger passenger) {
+            float price = 0;
+            if (passenger.isAChild()) {
+                price = getChildDiscount();
+            } else {
+                if (passenger.isUnemployed()) {
+                    price = getUnemployedDiscount();
+                } else {
+                    if (isChristmas()) {
+                        price = 0;
+                    } else {
+                        price = getNormalPrice();
+                    }
+                }
+            }
+            return price;
+        }
+
+        private float getUnemployedDiscount() {
+            return BASE_PRICE * distance * UNEMPLOYED_DISCOUNT;
+        }
+
+        private float getNormalPrice() {
+            return BASE_PRICE * distance;
+        }
+
+        private boolean isChristmas() {
+            return false;
+        }
+
+        private float getChildDiscount() {
+            return BASE_PRICE * distance * CHILDREN_DISCOUNT;
+        }
+    }
+    ```
+
+??? abstract "Refactorización"
+
+    - Se eliminan los if-else anidados dejándolos en un único nivel.
+
+    ``` java title="replacenestedconditionalguardclauses/refactored/Flight.java" hl_lines="13-15"
+    public class Flight {
+	
+        private static final float CHILDREN_DISCOUNT = 0.9f;
+        private static final float UNEMPLOYED_DISCOUNT = 0.8f;
+        private static final int BASE_PRICE = 20;
+        private int distance;
+        
+        public Flight (int distance) {
+            this.distance = distance;
+        }
+
+        public float priceForPassenger (Passenger passenger) {
+            if (passenger.isAChild()) return getChildDiscount();
+            if (passenger.isUnemployed()) return getUnemployedDiscount();
+            if (isChristmas()) return 0;
+            return getNormalPrice();
+
+        }
+
+        private float getUnemployedDiscount() {
+            return BASE_PRICE * distance * UNEMPLOYED_DISCOUNT;
+        }
+
+        private float getNormalPrice() {
+            return BASE_PRICE * distance;
+        }
+
+        private boolean isChristmas() {
+            return false;
+        }
+
+        private float getChildDiscount() {
+            return BASE_PRICE * distance * CHILDREN_DISCOUNT;
+        }
+    }
+    ```
+
+## Reemplazar condicional con polimorfismo
+
+Sustituir las expresiones condicionales (normalmente un `switch`) por una jerarquía de clases en la que la llamada al tipo específico se resuelva mediante polimorfismo. 
+
+De esta forma se mejora el mantenimiento de la aplicación al ser más sencillo añadir nuevos casos en un futuro sin necesidad de duplicar código.
+
+???+ warning "Código mejorable..."
+
+    - El `switch` se haría muy enrevesado si se tienen muchos tipos de vehículos.
+
+    ``` java title="replaceconditionalwithpolymorphism/Vehicle.java" hl_lines="19-29"
+    public class Vehicle {
+
+        private static final int CAR = 0;
+        private static final int BIKE = 1;
+        private static final int PLANE = 2;
+        
+        private int vehicleType;
+        private int speed;
+        private int acceleration;
+
+        public Vehicle(int vehicleType, int speed, int acceleration) {
+            this.vehicleType = vehicleType;
+            this.speed = speed;
+            this.acceleration = acceleration;
+        }
+        
+        public int move () {
+            int result = 0;
+            switch (vehicleType) {
+                case CAR:
+                    result = speed * acceleration * 5;
+                    break;
+                case BIKE:
+                    result = speed * 10;
+                    break;
+                case PLANE:
+                    result = acceleration * 2;
+                    break;
+            }
+
+            return result;
+        }
+    }
+    ```
+
+??? abstract "Refactorización"
+
+    - Se crea una clase abstracta `Vehiculo` con su método abstracto `move`.
+    - Se crean clases hijas `Bike`, `Car` y `Plane` que definen dicho método `move` al que se llamará directamente si necesidad del `switch`.
+
+    ``` java title="replaceconditionalwithpolymorphism/refactored/Vehicle.java" hl_lines="12"
+    public abstract class Vehicle {
+        protected int vehicleType;
+        protected int speed;
+        protected int acceleration;
+
+        public Vehicle(int vehicleType, int speed, int acceleration) {
+            this.vehicleType = vehicleType;
+            this.speed = speed;
+            this.acceleration = acceleration;
+        }
+        
+        public abstract int move ();
+    }
+    ```
+
+    ``` java title="replaceconditionalwithpolymorphism/refactored/Bike.java" hl_lines="7"
+    public class Bike extends Vehicle {	
+        public Bike(int vehicleType, int speed, int acceleration) {
+            super(vehicleType, speed, acceleration);
+        }
+        
+        @Override
+        public int move () { return speed * 10; }
+    }
+    ```
+
+    ``` java title="replaceconditionalwithpolymorphism/refactored/Car.java" hl_lines="7"
+    public class Car extends Vehicle {
+        public Car(int vehicleType, int speed, int acceleration) {
+            super(vehicleType, speed, acceleration);
+        }
+        
+        @Override
+        public int move () { return speed * acceleration * 5; }
+    }
+    ```
+
+    ``` java title="replaceconditionalwithpolymorphism/refactored/Plane.java" hl_lines="7"
+    public class Plane extends Vehicle {
+	    public Plane(int vehicleType, int speed, int acceleration) {
+            super(vehicleType, speed, acceleration);
+        }
+        
+        @Override
+        public int move () { return  acceleration * 2; }
+    }
+    ```
+
+## Introducir objeto nulo
+
+Utilizar un objeto que representa el valor `null` de algo evitando realizar comparaciones directamente con `null`, lo que no suele ser muy recomendable porque puede provocar errores inesperados.
+
+???+ warning "Código mejorable..."
+
+    - Para el ataque del guerrero se comprueba que tenga un arma (no sea `null`) para obtener el daño que hace y sumarlo.
+  
+    ``` java title="introducenullobject/Weapon.java"
+    public class Weapon {
+        private int damage;
+
+        public Weapon(int damage) {
+            this.damage = damage;
+        }
+
+        public int getDamage() {
+            return damage + new Random().nextInt(3);
+        }
+    }
+    ```
+
+    ``` java title="introducenullobject/Warrior.java" hl_lines="10"
+    public class Warrior {
+        private Weapon weapon;
+
+        public Warrior(Weapon weapon) {
+            this.weapon = weapon;
+        }
+
+        public int attack() {
+            int damage = 0;
+            if (weapon == null) {
+                damage = 2;
+            } else {
+                damage = 2 + weapon.getDamage();
+            }
+            return damage;
+        }
+    }
+    ```
+
+??? abstract "Refactorización"
+
+    - Se crea la clase `NullWeapon` que hereda de `Weapon` y representa el daño que hace no tener un arma equipada, evitando así la comparacióin con `null` anterior.
+
+    ``` java title="introducenullobject/refactored/Warrior.java"
+    public class NullWeapon extends Weapon {
+        public NullWeapon(int damage) {
+            super(damage);
+        }
+
+        @Override
+        public int getDamage() {
+            return 0;
+        }
+    }
+    ```
+
+    ``` java title="introducenullobject/Warrior.java" hl_lines="9"
+    public class Warrior {
+        private Weapon weapon;
+
+        public Warrior(Weapon weapon) {
+            this.weapon = weapon;
+        }
+
+        public int attack() {
+            return 2 + weapon.getDamage();
+        }
+    }
+    ```
+
+## Separar consulta de modificación
+
+Evitar que un mismo método haga una consulta de datos y relice modificaciones. Mejor separar en varios métodos para evitar que un método de consulta tenga resultados inesperados. Un método tiene que tener un único propósito.
+
+???+ warning "Código mejorable..."
+
+    - El método `initVehicleAndGetType` modifica los atributos `horsePower` y `type`. Y además devuelve `type`. Un método sólo debería hacer una única tarea, en este caso o modificar, o bien obtener valores.
+
+    ``` java title="separatequerymodify/Vehicle.java" hl_lines="9-21"
+    public class Vehicle {
+        private int horsePower;
+        private String type;
+
+        public Vehicle(int power) {
+            initVehicleAndGetType(power);
+        }
+
+        private String initVehicleAndGetType(int power) {
+            horsePower = power;
+
+            if (power >= 10) {
+                type = "Truck";
+            } else if (power > 5 && power < 10) {
+                type = "Car";
+            } else {
+                type = "Bike";
+            }
+            
+            return type;
+        }
+
+        public int getHorsePower() {
+            return horsePower;
+        }
+
+        public String getType() {
+            return type;
+        }
+    }
+    ```
+
+??? abstract "Refactorización"
+
+    - Se modifica el método de inicio `init` estableciendo en métodos separados los atributos.
+    - Se hacen los getters correspondientes para obtener el valor de los atributos.
+
+    ``` java title="separatequerymodify/refactored/Vehicle.java"
+    public class Vehicle {
+        private int horsePower;
+        private String type;
+
+        public Vehicle(int power) {
+            init(power);
+        }
+
+        private void init(int power) {
+            setPower(power);
+            setType();
+        }
+
+        private void setPower(int power) {
+            horsePower = power;
+        }
+
+        private void setType() {
+            if (horsePower >= 10) {
+                type = "Truck";
+            } else if (horsePower > 5 && horsePower < 10) {
+                type = "Car";
+            } else {
+                type = "Bike";
+            }
+        }
+
+        public int getHorsePower() {
+            return horsePower;
+        }
+
+        public String getType() {
+            return type;
+        }
+    }
+    ```
+
+## Parametrizar método
+
+Unificar en un método varios métodos en los que sólo cambia un valor para evitar código duplicado. Se hace, añadiendo al método un parámetro (el valor que cambia).
+
+???+ warning "Código mejorable..."
+
+    - Hay varios métodos que hacen lo mismo cambiando un único valor.
+
+    ``` java title="parametrizemethod/Invoice.java" hl_lines="20 25 30"
+    public class Invoice {
+        private float subtotal;
+        private Customer customer;
+
+        public Invoice(float subtotal, Customer customer) {
+            this.subtotal = subtotal;
+            this.customer = customer;
+        }
+
+        public float charge() {
+            if (customer.getAge() < 18) {
+                return chargeWithUnderageDiscount();
+            } else if (customer.payInCash()) {
+                return chargeWithCashDiscount();
+            } else {
+                return chargeNormal();
+            }
+        }
+
+        private float chargeWithUnderageDiscount() {
+            float total = subtotal * 0.5f;
+            return total;
+        }
+
+        private float chargeWithCashDiscount() {
+            float total = subtotal * 0.8f;
+            return total;
+        }
+
+        private float chargeNormal() {
+            return subtotal;
+        }
+    }
+    ```
+
+??? abstract "Refactorización"
+
+    - Se añade como parámetro del método el valor que cambia unificando todo en un único método.
+
+    ``` java title="parametrizemethod/refactored/Invoice.java" hl_lines="20"
+    public class Invoice {
+        private float subtotal;
+        private Customer customer;
+
+        public Invoice(float subtotal, Customer customer) {
+            this.subtotal = subtotal;
+            this.customer = customer;
+        }
+
+        public float charge() {
+            if (customer.getAge() < 18) {
+                return charge(0.5f);
+            } else if (customer.payInCash()) {
+                return charge(0.8f);
+            } else {
+                return charge();
+            }
+        }
+
+        public float charge (float discount) {
+            return subtotal * discount;
+            }
+    }
+    ```
+
+## Reemplazar parámetro con método explícito
+
+La contraria a la refactorización anterior. En este caso reemplazamos un parámetro por métodos específicos. Se suele utilizar en métodos que han crecido mucho o realizan varias acciones.
+
+???+ warning "Código mejorable..."
+
+    - El método `initVehicle` ha crecido mucho con condicionales dentro para modificar varios atributos.
+
+    ``` java title="replaceparameterwitexplicitmethod/Vehicle.java" hl_lines="11"
+    public class Vehicle {
+
+        private int acceleration;
+        private int speed;
+        
+        public Vehicle(int acceleration, int speed) {
+            this.acceleration = acceleration;
+            this.speed = speed;
+        }
+
+        public void initVehicle (int type, int value) {
+            if (type == 1) {
+                acceleration = value;
+                return;
+            }
+
+            if (type == 2 || type == 3)  {
+                speed = value;
+                return;
+            }
+        }
+
+        public int getAcceleration() {
+            return acceleration;
+        }
+
+        public int getSpeed() {
+            return speed;
+        }
+    }
+    ```
+
+??? abstract "Refactorización"
+
+    - El método `initVehicle` se ha separado en los setters correspondientes a los atributos, simplificando así el código.
+
+    ``` java title="replaceparameterwitexplicitmethod/refactored/Vehicle.java" hl_lines="19 23"
+    public class Vehicle {
+
+        private int acceleration;
+        private int speed;
+        
+        public Vehicle(int acceleration, int speed) {
+            this.acceleration = acceleration;
+            this.speed = speed;
+        }
+        
+        public int getAcceleration() {
+            return acceleration;
+        }
+
+        public int getSpeed() {
+            return speed;
+        }
+
+        public void setAcceleration(int acceleration) {
+            this.acceleration = acceleration;
+        }
+        
+        public void setSpeed(int speed) {
+            this.speed = speed;
+        }
+    }
+    ```
+
+## Sustituir algoritmo
+
+Definición
+
+???+ warning "Código mejorable..."
+
+    ``` java title="packet/Class.java" hl_lines=""
+
+    ```
+
+En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
+
+??? abstract "Refactorización"
+
+    - acciones
+
+    ``` java title="packet/refactored/Class.java" hl_lines=""
+
     ```
