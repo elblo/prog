@@ -1491,6 +1491,543 @@ La contraria a la refactorización anterior. En este caso reemplazamos un parám
 
 ## Sustituir algoritmo
 
+Optimiza el código mejorando el rendimiento de un método que no sea eficiente y por ejemplo genere un cuello de botella.
+
+???+ warning "Código mejorable..."
+
+    - La variable `vatType` se comprueba con cada uno de los casos, lo que no es muy eficiente si se tiene que hacer para muchos datos.
+
+    ``` java title="susbtitutealtorithm/Order.java" hl_lines=""
+    public class Order {
+        public float applyVAT (int vatType) {
+            float result = 0;
+
+            switch (vatType) {
+                case 1:
+                    result = 1.04f;
+                    break;
+                case 2:
+                    result = 1.18f;
+                    break;
+                case 3:
+                    result = 1.21f;
+                    break;
+                default:
+                    result = -1;
+                    break;
+        }
+        return result;
+        }
+    }
+    ```
+
+??? abstract "Refactorización"
+
+    - Se ha sustituido cada caso del switch por una entrada del array, de tal forma que el valor de cada caso coincide con el índice del array. Así se puede devolver el valor que le corresponda de forma directa.
+
+    ``` java title="susbtitutealtorithm/refactored/Order.java" hl_lines="3"
+    public class Order {
+        public float applyVAT (int vatType) {
+            float result[] = {-1, 1.04f, 1.18f, 1.21f};
+
+            if (vatType > 0 && vatType < result.length) {
+                return result[vatType];
+            }
+            return -1;
+        }
+    }
+    ```
+
+## Extraer clase
+
+Sacar parte del contenido de una clase a otra porque la clase original tenga demasiadas responsabilidades.
+
+???+ warning "Código mejorable..."
+
+    - Los campos relacionados con la tarjeta de crédito se pueden extraer a otra clase.
+
+    ``` java title="extractclass/Customer.java" hl_lines="4-6"
+    public class Customer {
+        private String name;
+        private String dni;
+        private String creditCard;
+        private Date creditCardDate;
+        private int creditCardControlNumber;
+        
+        public Customer(String name, String dni) {
+            this.name = name;
+            this.dni = dni;
+        }
+
+        public boolean isCardExpired () {
+            return creditCardDate.before(new Date());
+        }
+
+        public boolean isValid () {
+            boolean result = false;
+            // Some code here...
+            return result;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getDni() {
+            return dni;
+        }
+
+        public void setDni(String dni) {
+            this.dni = dni;
+        }
+
+        public String getCreditCard() {
+            return creditCard;
+        }
+
+        public void setCreditCard(String creditCard) {
+            this.creditCard = creditCard;
+        }
+
+        public Date getCreditCardDate() {
+            return creditCardDate;
+        }
+
+        public void setCreditCardDate(Date creditCardDate) {
+            this.creditCardDate = creditCardDate;
+        }
+
+        public int getCreditCardControlNumber() {
+            return creditCardControlNumber;
+        }
+
+        public void setCreditCardControlNumber(int creditCardControlNumber) {
+            this.creditCardControlNumber = creditCardControlNumber;
+        }
+
+    }
+    ```
+
+En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
+
+??? abstract "Refactorización"
+
+    - Se crea la clase `CreditCard` con sus atributos y métodos.
+
+    ``` java title="extractclass/refactored/Customer.java" hl_lines=""
+    public class Customer {
+        private String name;
+        private String dni;
+        private CreditCard creditCard;
+
+        public Customer(String name, String dni) {
+            this.name = name;
+            this.dni = dni;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getDni() {
+            return dni;
+        }
+
+        public void setDni(String dni) {
+            this.dni = dni;
+        }
+    }
+    ```
+
+    ``` java title="extractclass/refactored/CreditCard.java" hl_lines=""
+    public class CreditCard {
+        private String creditCard;
+        private Date creditCardDate;
+        private int creditCardControlNumber;
+        
+        public CreditCard(String creditCard, Date creditCardDate, int creditCardControlNumber) {
+            this.creditCard = creditCard;
+            this.creditCardDate = creditCardDate;
+            this.creditCardControlNumber = creditCardControlNumber;
+        }
+
+        public boolean isCardExpired () {
+            return creditCardDate.before(new Date());
+        }
+
+        public boolean isValid () {
+            boolean result = false;
+            // Some code here...
+            return result;
+        }
+        
+        public Date getCreditCardDate() {
+            return creditCardDate;
+        }
+
+        public void setCreditCardDate(Date creditCardDate) {
+            this.creditCardDate = creditCardDate;
+        }
+
+        public int getCreditCardControlNumber() {
+            return creditCardControlNumber;
+        }
+
+        public void setCreditCardControlNumber(int creditCardControlNumber) {
+            this.creditCardControlNumber = creditCardControlNumber;
+        }
+    }
+    ```
+
+## Clase en línea
+
+Refactorización contraria a la anterior. Introducir los atributos y métodos de una clase que por sí sola no tenga mucho sentido en otra clase.
+
+???+ warning "Código mejorable..."
+
+    - La clase `Sex` sólo tiene un atributo y no define ningún comportamiento.
+
+    ``` java title="inlineclass/Person.java" hl_lines=""
+    public class Person {
+        private String name;
+        private Date birth;
+        private Sex sex;
+        
+        public Person(String name, Date birth, int sexCode) {
+            this.name = name;
+            this.birth = birth;
+            this.sex = new Sex(sexCode);
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Date getBirth() {
+            return birth;
+        }
+
+        public void setBirth(Date birth) {
+            this.birth = birth;
+        }
+
+        public Sex getSex() {
+            return sex;
+        }
+
+        public void setSex(Sex sex) {
+            this.sex = sex;
+        }
+
+        @Override
+        public String toString() {
+            return "Person [name=" + name + ", sex=" + sex + "]";
+        }
+    }
+    ```
+
+    ``` java title="inlineclass/Person.java" hl_lines=""
+    public class Sex {
+        public static final int MALE = 0;
+        public static final int FEMALE = 1;
+        private int sex;
+
+        public Sex (int sex) {
+            this.sex = sex;
+        }
+
+        public int getSex () {
+            return sex;
+        }
+
+        @Override
+        public String toString() {
+            return Integer.toString(sex);
+        }
+    }
+    ```
+
+??? abstract "Refactorización"
+
+    - Se introducen los atributos y métodos de `Sex` dentro de `Person`.
+
+    ``` java title="inlineclass/refactored/Person.java" hl_lines=""
+    public class Person {
+        private String name;
+        private Date birth;
+        public static final int MALE = 0;
+        public static final int FEMALE = 1;
+        private int sex;
+
+        
+        public Person(String name, Date birth, int sexCode) {
+            this.name = name;
+            this.birth = birth;
+            this.sex = sexCode;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Date getBirth() {
+            return birth;
+        }
+
+        public void setBirth(Date birth) {
+            this.birth = birth;
+        }
+
+        public int getSex() {
+            return sex;
+        }
+
+        public void setSex(int sex) {
+            this.sex = sex;
+        }
+
+        @Override
+        public String toString() {
+            return "Person [name=" + name + ", sex=" + sex + "]";
+        }
+    }
+    ```
+
+## Ocultar Delegar
+
+Evitar que un cliente (método principal por ejemplo) pueda acceder a una clase delegada a través de clases intermedias.
+
+???+ warning "Código mejorable..."
+
+    - Desde la clase `Main` se accede al dado `Die` que depende de `Player`.
+
+    ``` java title="hidedelegate/Main.java" hl_lines="15"
+    public class Main {
+        private Player player;
+        private Die die;
+        
+        public Main () {
+            init();
+        }
+        
+        private void init () {
+            player = new Player();
+            die = player.getDie();
+        }
+        
+        public int roll () {
+            return die.roll();
+        }
+    }
+    ```
+
+    ``` java title="hidedelegate/Player.java" hl_lines=""
+    public class Player {
+        private Die die;
+        
+        public Player () {
+            this.die = new Die();
+        }
+        
+        public int roll () {
+            return die.roll();
+        }
+
+        public Die getDie() {
+            return die;
+        }
+    }
+    ```
+
+    ``` java title="hidedelegate/Die.java" hl_lines=""
+    public class Die {
+        private Random random = new Random();
+        
+        public int roll() {
+            return random.nextInt(6) + 1;
+        }
+    }
+    ```
+
+??? abstract "Refactorización"
+
+    - La clase `Main` ya no tiene la dependencia de `Die`, que sólo está en `Player`.
+
+    ``` java title="hidedelegate/refactored/Main.java" hl_lines="13"
+    public class Main {
+        private Player player;
+        
+        public Main () {
+            init();
+        }
+        
+        private void init () {
+            player = new Player();
+        }
+        
+        public int roll () {
+            return player.roll();
+        }
+    }
+    ```
+
+    ``` java title="hidedelegate/refactored/Player.java" hl_lines=""
+    public class Player {
+        private Die die;
+        
+        public Player () {
+            this.die = new Die();
+        }
+
+        public int roll() {
+            return die.roll();
+        }
+    }
+    ```
+
+    ``` java title="hidedelegate/refactored/Die.java" hl_lines=""
+    public class Die {
+        private Random random = new Random();
+        
+        public int roll() {
+            return random.nextInt(6) + 1;
+        }
+    }
+    ```
+
+## Introducir método externo
+
+Añadir un método en la clase cliente para extender la funcionalidad de otra clase a la que no tenemos acceso.
+
+???+ warning "Código mejorable..."
+
+    - El método `improvePassword` completa un String de asteriscos si este es muy corto.
+
+    ``` java title="introduceforeignmethod/PasswordChecker.java" hl_lines=""
+    public class PasswordChecker {
+        public String improvePassword (String password) {
+            if (password.length() < 5) {
+                return "****" + password + "****";
+            } else {
+                return password;
+            }
+        }
+    }
+    ```
+
+En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
+
+??? abstract "Refactorización"
+
+    - Extendemos la funcionalidad de la clase `String` completando con el propio password dado la vuelta si este es muy corto.
+
+    ``` java title="introduceforeignmethod/refactored/PasswordChecker.java" hl_lines=""
+    public class PasswordChecker {
+        public String improvePassword (String password) {
+            if (password.length() < 5) {
+                return makeItPalindrome(password);
+            } else {
+                return password;
+            }
+        }
+        
+        // We extend String functionality
+        private static String makeItPalindrome (String password) {
+            return new String(password + new StringBuilder(password)
+                                                            .reverse()
+                                                            .toString());
+        }
+    }
+    ```
+
+## Introducir extensión local
+
+Extender una clase para darle una nueva funcionalidad.
+
+???+ warning "Código mejorable..."
+
+    - Suponemos que no tenemos acceso a `Conversor` para añadir nuevos métodos.
+
+    ``` java title="introducelocalextension/Main.java" hl_lines=""
+    public class Main {
+        private Conversor conversor = new Conversor();
+        
+        public double convert (double amount) {
+            return conversor.euro2Dollar(amount);
+        }
+    }
+    ```
+
+    ``` java title="introducelocalextension/Conversor.java" hl_lines=""
+    public class Conversor {
+        public double euro2Dollar (double qty) {
+            return qty * 1.4d;
+        }
+
+        public double dollar2Euro (double qty) {
+            return qty * 0.6d;
+        }
+    }
+    ```
+
+En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
+
+??? abstract "Refactorización"
+
+    - Creamos una subclase `CoolConversor` de `Conversor` con sus funciones y añadimos las nuevas que necesitemos.
+
+    ``` java title="introducelocalextension/refactored/Main.java" hl_lines=""
+    public class Main {
+        private CoolConversor conversor = new CoolConversor();
+        
+        public double convert (double amount) {
+            return conversor.euro2Dollar(amount);
+        }
+    }
+    ```
+
+    ``` java title="introducelocalextension/refactored/CoolConversor.java" hl_lines=""
+    public class CoolConversor extends Conversor {
+        public double euro2Pound (double qty) {
+            return qty * 0.8d;
+        }
+
+        public double pound2Euro (double qty) {
+            return qty * 1.3d;
+        }
+    }
+    ```
+
+    ``` java title="introducelocalextension/refactored/Conversor.java" hl_lines=""
+    public class Conversor {
+        public double euro2Dollar (double qty) {
+            return qty * 1.4d;
+        }
+
+        public double dollar2Euro (double qty) {
+            return qty * 0.6d;
+        }
+    }
+    ```
+
+## Reemplazar un dato con un objeto
+
 Definición
 
 ???+ warning "Código mejorable..."
@@ -1508,3 +2045,4 @@ En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
     ``` java title="packet/refactored/Class.java" hl_lines=""
 
     ```
+
