@@ -2028,21 +2028,387 @@ En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
 
 ## Reemplazar un dato con un objeto
 
-Definición
+Reemplazar un atributo de una clase por un objeto porque necesite que le dotemos de algún comportamiento más amplio.
 
 ???+ warning "Código mejorable..."
 
-    ``` java title="packet/Class.java" hl_lines=""
+    - Campo `address` se queda corto en este caso porque necesitamos diferenciar la ciudad, código postal...
 
+    ``` java title="replacedatawithobject/Customer.java" hl_lines="4"
+    public class Customer {
+        private String name;
+        private String email;
+        private String address;
+        
+        public Customer(String name, String email, String address) {
+            this.name = name;
+            this.email = email;
+            this.address = address;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getAddress() {
+            return address;
+        }
+
+        public void setAddress(String address) {
+            this.address = address;
+        }
+
+        @Override
+        public String toString() {
+            return "Customer [name=" + name + ", email=" + email + ", address=" + address + "]";
+        }
+    }
     ```
-
-En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Rename`.
 
 ??? abstract "Refactorización"
 
-    - acciones
+    - Se extrae `address` a un objeto para poder diferenciar las partes de la propia dirección.
 
-    ``` java title="packet/refactored/Class.java" hl_lines=""
+    ``` java title="replacedatawithobject/refactored/Customer.java" hl_lines="4"
+    public class Customer {
+        private String name;
+        private String email;
+        private Address address;
 
+        public Customer(String name, String email, Address address) {
+            this.name = name;
+            this.email = email;
+            this.address = address;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public Address getAddress() {
+            return address;
+        }
+
+        public void setAddress(Address address) {
+            this.address = address;
+        }
+
+        @Override
+        public String toString() {
+            return "Customer [name=" + name + ", email=" + email + ", address=" + address + "]";
+        }
+    }
     ```
 
+    ``` java title="replacedatawithobject/refactored/Address.java" hl_lines=""
+    public class Address {
+		private String street;
+		private String po;
+		private String city;
+		
+		public Address(String street, String po, String city) {
+			this.street = street;
+			this.po = po;
+			this.city = city;
+		}
+
+		@Override
+		public String toString() {
+			return city;
+		}
+    }
+    ```
+
+## Encapsular colección
+
+ES común que al añadir los *getters* de forma automática, se añada un get de una colección que no deberíamos devolver. Esta refactorización consiste en encapsular esa colección, ocultandándola para que esté disponible sólo a través de los métodos que nos interese.
+
+???+ warning "Código mejorable..."
+
+    - El método `getPlayers` devuelve la colección completa de jugadores y no debería ser así.
+
+    ``` java title="encapsultacollection/Team.java" hl_lines="19"
+    public class Team {
+        private String name;
+        private Date creation;
+        private ArrayList<Player> players = new ArrayList<Player>();
+
+        public Team(String name, Date creation) {
+            this.name = name;
+            this.creation = creation;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Date getCreation() {
+            return creation;
+        }
+        
+        public ArrayList<Player> getPlayers() {
+            return players;
+        }
+
+        public int totalPlayers() {
+            return players.size();
+        }
+    }
+    ```
+
+??? abstract "Refactorización"
+
+    - Se crean métodos `getPlayer`, `addPlayer` y `removePlayer` para gestionar la colección sin necesidad de devolverla.
+
+    ``` java title="encapsultacollection/refactored/Team.java" hl_lines="19 23 27"
+    public class Team {
+        private String name;
+        private Date creation;
+        private ArrayList<Player> players = new ArrayList<Player>();
+
+        public Team(String name, Date creation) {
+            this.name = name;
+            this.creation = creation;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Date getCreation() {
+            return creation;
+        }
+        
+        public Player getPlayer (int index) {
+            return players.get(index);
+        }
+
+        public void addPlayer (Player player) {
+            players.add(player);
+        }
+
+        public void removePlayer (int index) {
+            players.remove(index);
+        }
+        
+        public int totalPlayers() {
+            return players.size();
+        }
+    }
+    ```
+
+## Pull up
+
+Subir atributos y métodos comunes entre clases hijas, a la superclase.
+
+???+ warning "Código mejorable..."
+
+    - El atributo `plate` (matrícula) y el método `start` están repetidos en las clases hijas.
+
+    ``` java title="pullup/Vehicle.java" hl_lines=""
+    public class Vehicle {
+        protected String name;
+    }
+    ```
+
+    ``` java title="pullup/Car.java" hl_lines="2 6"
+    public class Car extends Vehicle {
+        private String plate;
+        private String trunk;
+        private boolean isTrunkOpened;
+        
+        public void start() { ... }
+
+        public boolean isTrunkOpen() {
+            return isTrunkOpened;
+        }
+    }
+    ```
+
+    ``` java title="pullup/MotorBike.java" hl_lines="2 5"
+    public class MotorBike extends Vehicle {
+        private String plate;
+        private String helmet;
+
+        public void start() { ... }
+    }
+    ```
+
+En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Pull Members Up`.
+
+??? abstract "Refactorización"
+
+    - Se sube a la clase padre el atributo común `plate` y método común `start`.
+
+    ``` java title="pullup/refactored/Vehicle.java" hl_lines="3 5"
+    public class Vehicle {
+        protected String name;
+        protected String plate;
+
+        public void start() { ... }
+    }
+    ```
+
+    ``` java title="pullup/refactored/Car.java" hl_lines="2 6"
+    public class Car extends Vehicle {
+        private String trunk;
+        private boolean isTrunkOpened;
+
+        public boolean isTrunkOpen() {
+            return isTrunkOpened;
+        }
+    }
+    ```
+
+    ``` java title="pullup/refactored/MotorBike.java" hl_lines="2 5"
+    public class MotorBike extends Vehicle {
+        private String helmet;
+    }
+    ```
+
+## Push down
+
+La refactorización contraria a la anterior. Ocurre cuando hay atributos o métodos de una superclase que no tienen sentido en todas las clases hijas. En ese caso, se mueven a las clases hijas que correspondan.
+
+???+ warning "Código mejorable..."
+
+    - En una clase hija `Bicycle` no tiene sentido los atributos de matrícula, seguro, ni el método arrancar.
+
+    ``` java title="pushdown/Vehicle.java" hl_lines="3 4 6"
+    public class Vehicle {
+        protected String name;
+        protected String plate;
+        protected Insurance insurance;
+
+        public void start() { ...  }
+    }
+    ```
+
+En IntelliJ IDEA, seleccionar el método/variable y `Refactor > Push Members Down`.
+
+??? abstract "Refactorización"
+
+    - Los atributos y métodos se pasan a las clase que los utilicen.
+
+    ``` java title="pushdown/refactored/Vehicle.java" hl_lines=""
+    public class Vehicle {
+        protected String name;
+    }
+    ```
+
+    ``` java title="pushdown/refactored/Car.java" hl_lines="4 5 11"
+    public class Car extends Vehicle {
+        private String trunk;
+        private boolean isTrunkOpened;
+        protected String plate;
+        protected Insurance insurance;
+
+        public boolean isTrunkOpen() {
+            return isTrunkOpened;
+        }
+
+        public void start() { ... }
+    }
+    ```
+
+    ``` java title="pushdown/refactored/Bicycle.java" hl_lines=""
+    public class Bicycle extends Vehicle {
+        private String helmet;
+    }
+    ```
+
+## Reemplazar array con objeto
+
+Cuando tenemos un array simplemente para almacenar una serie de datos variados, se puede reemplazar por un objeto con dichos datos para hacer el código más legible.
+
+???+ warning "Código mejorable..."
+
+    - El array `pilotData` se usa para almacenar datos variados sobre el piloto.
+
+    ``` java title="replacearraywithobject/Airplane.java" hl_lines="3 10-12"
+    public class Airplane {
+        private String model;
+        private String pilotData[] = new String[3];
+
+        public Airplane(String model) {
+            this.model = model;
+        }
+
+        public void initPilot(String name, String license, int flightHours) {
+            pilotData[0] = name;
+            pilotData[1] = license;
+            pilotData[2] = Integer.toString(flightHours);
+        }
+
+        @Override
+        public String toString() {
+            return "Airplane [model=" + model + ", pilot=" + pilotData[0] + "]";
+        }
+    }
+    ```
+
+??? abstract "Refactorización"
+
+    - Se crea una clase `Pilot` cuyos atributos son los datos que se almacenaban en el array. 
+
+    ``` java title="replacearraywithobject/refactored/Airplane.java" hl_lines="3 10"
+    public class Airplane {
+        private String model;
+        private Pilot pilot;
+
+        public Airplane(String model) {
+            this.model = model;
+        }
+
+        public void initPilot(String name, String license, int flightHours) {
+            pilot = new Pilot(name, license, flightHours);
+        }
+
+        @Override
+        public String toString() {
+            return "Airplane [model=" + model + ", pilot=" + pilot + "]";
+        }
+    }
+    ```
+
+    ``` java title="replacearraywithobject/refactored/Pilot.java" hl_lines=""
+    public class Pilot {
+        private String name;
+        private String license;
+        private int flightHours;
+
+        public Pilot (String name, String license, int flightHours) {
+            this.name = name;
+            this.license = license;
+            this.flightHours = flightHours;
+        }
+
+        public String toString() {
+            return name;
+        }
+    }
+    ```
